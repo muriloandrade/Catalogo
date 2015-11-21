@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 public abstract class ObjectDTO implements Serializable
 {
-
 	private int id;
 
 	public ObjectDTO()

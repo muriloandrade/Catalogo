@@ -1,0 +1,54 @@
+CREATE DATABASE `CATALOGO_APP`;
+
+USE `CATALOGO_APP`;
+
+CREATE TABLE `CATALOGO` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `NOME` varchar(100) NOT NULL,
+  `CAPACIDADE` int(11) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE `CD` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `TITULO` varchar(100),
+  `ANO` int(11),
+  `ARTISTA` varchar(100),
+  `CATALOGO_ID` int(11) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE `FAIXA_CD` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `NUMERO` int(11),
+  `NOME` varchar(255),
+  `DURACAO` int(11),
+  `CD_ID` int(11) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE `DVD` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `TITULO` varchar(100),
+  `ANO` int(11),
+  `DIRETOR` varchar(100),
+  `CATALOGO_ID` int(11) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE `ARTISTA` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `NOME` varchar(100),
+  `PAPEL` varchar(100),
+  `DVD_ID` int(11) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE `JOGO` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `TITULO` varchar(100),
+  `ANO` int(11),
+  `GENERO` varchar(100),
+  `CATALOGO_ID` int(11) NOT NULL,
+  PRIMARY KEY (`ID`)
+);

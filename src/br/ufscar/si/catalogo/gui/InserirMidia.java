@@ -11,7 +11,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.text.ParseException;
 
 import javax.swing.ButtonGroup;
@@ -37,7 +36,6 @@ import br.ufscar.si.catalogo.modelo.Catalogo;
 import br.ufscar.si.catalogo.modelo.DVD;
 import br.ufscar.si.catalogo.modelo.DuracaoFaixa;
 import br.ufscar.si.catalogo.modelo.Jogo;
-import br.ufscar.si.catalogo.modelo.SerializadorCatalogo;
 
 /*
  * Janela JDialog para inserir uma nova mídia no catálogo
@@ -439,19 +437,8 @@ public class InserirMidia extends JDialog
 
 	private void salvar()
 	{
-
-		try
-		{
-			dispose();
-			SerializadorCatalogo.gravaCatalogo(catalogo, catalogo.getArquivo());
-			JOptionPane.showMessageDialog(contentPanel, "Mídia inserida com sucesso.", "Inserir Mídia",
-					JOptionPane.INFORMATION_MESSAGE);
-		}
-		catch (IOException e)
-		{
-			JOptionPane.showMessageDialog(contentPanel, "Não foi possível salvar a inserção da mídia.",
-					"Inserir Mídia", JOptionPane.ERROR_MESSAGE);
-		}
+		JOptionPane.showMessageDialog(contentPanel, "Mídia inserida com sucesso.", "Inserir Mídia",
+				JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private void limparCampos()

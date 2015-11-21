@@ -17,7 +17,7 @@ class CDJDBCDAO extends GenericJDBCDAO implements ICDDAO
 	@Override
 	public String getTableName()
 	{
-		return Database.DB_NAME + ".\"CD\"";
+		return Database.DB_NAME + ".CD";
 	}
 	
 	@Override

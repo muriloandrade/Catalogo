@@ -15,7 +15,7 @@ class DVDJDBCDAO extends GenericJDBCDAO implements IDVDDAO
 	@Override
 	public String getTableName()
 	{
-		return Database.DB_NAME + ".\"DVD\"";
+		return Database.DB_NAME + ".DVD";
 	}
 	
 	@Override

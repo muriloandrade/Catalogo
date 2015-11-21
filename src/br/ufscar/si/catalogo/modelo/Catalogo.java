@@ -1,32 +1,43 @@
 package br.ufscar.si.catalogo.modelo;
 
-import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-public class Catalogo implements ColecaoMidia, Serializable
+public class Catalogo extends ObjectDTO implements ColecaoMidia
 {
 	private static final int MAX_MIDIAS = 300;
 
 	private ArrayList<Midia> midias;
-	private int tamMaximo;
-	private File arquivo;
+	private String nome;
+	private int capacidade;
 
-	public Catalogo(int tamMaximo)
+	public Catalogo(String nome, int capacidade)
 	{
+		this.nome = nome;
+
 		// O tamanho maximo se limita a MAX_MIDIAS
-		this.tamMaximo = tamMaximo < MAX_MIDIAS ? tamMaximo : MAX_MIDIAS;
+		this.capacidade = capacidade < MAX_MIDIAS ? capacidade : MAX_MIDIAS;
 
 		// Cria a colecao
 		midias = new ArrayList<Midia>();
 	}
 
+	// Getters
+	public String getNome()
+	{
+		return nome;
+	}
+
+	public int getCapacidade()
+	{
+		return capacidade;
+	}
+
 	public boolean adicionaMidia(Midia midia)
 	{
 		// Somente adiciona se nao atingiu limite
-		if (midias.size() < tamMaximo) { return midias.add(midia); }
+		if (midias.size() < capacidade) { return midias.add(midia); }
 
 		return false;
 	}
@@ -45,11 +56,6 @@ public class Catalogo implements ColecaoMidia, Serializable
 		}
 		// Retorna null se a midia nao for encontrada
 		return null;
-	}
-
-	public int quantidadeMaximaDeMidias()
-	{
-		return tamMaximo;
 	}
 
 	public int quantidadeDeMidias()
@@ -96,15 +102,5 @@ public class Catalogo implements ColecaoMidia, Serializable
 		Collections.sort(colecaoPorTipo);
 
 		return colecaoPorTipo;
-	}
-
-	public void setArquivo(File arquivo)
-	{
-		this.arquivo = arquivo;
-	}
-
-	public File getArquivo()
-	{
-		return arquivo;
 	}
 }

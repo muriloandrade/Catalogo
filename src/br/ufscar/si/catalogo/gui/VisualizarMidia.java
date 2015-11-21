@@ -293,9 +293,9 @@ public class VisualizarMidia extends JDialog
 	
 		for (int i = 0; i < faixas.length; i++)
 		{
-			if (faixas[i].getFaixa() != null)
+			if (faixas[i].getNome() != null)
 			{
-				Object[] valores = { faixas[i].getNumero(), faixas[i].getFaixa(), faixas[i].getDuracao() };
+				Object[] valores = { faixas[i].getNumero(), faixas[i].getNome(), faixas[i].getDuracao() };
 				((DefaultTableModel) tabelaFaixasCD.getModel()).addRow(valores);
 			}
 		}

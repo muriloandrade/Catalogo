@@ -1,8 +1,6 @@
 package br.ufscar.si.catalogo.modelo;
 
-import java.io.Serializable;
-
-public abstract class ObjectDTO implements Serializable
+public abstract class ObjectDTO
 {
 	private int id;
 

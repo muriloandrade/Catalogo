@@ -1,8 +1,6 @@
 package br.ufscar.si.catalogo.modelo;
 
-import java.io.Serializable;
-
-public class ArtistaDVD implements Serializable
+public class ArtistaDVD
 {
 	private String nome;
 	private String papel;

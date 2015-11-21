@@ -20,12 +20,12 @@ public class CD extends Midia
 		this.qtdFaixasAdicionadas = 0;
 	}
 
-	public void adicionaFaixa(int numero, String faixa, DuracaoFaixa duracao) throws ParseException
+	public void adicionaFaixa(int numero, String nome, DuracaoFaixa duracao) throws ParseException
 	{
 		// Somente adiciona se o array nao estiver cheio
 		if (qtdFaixasAdicionadas < MAX_FAIXAS)
 		{
-			faixas[qtdFaixasAdicionadas++] = new FaixaCD(numero, faixa, duracao);
+			faixas[qtdFaixasAdicionadas++] = new FaixaCD(numero, nome, duracao);
 		}
 	}
 

@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.text.ParseException;
 
 import javax.swing.GroupLayout;
@@ -35,7 +34,6 @@ import br.ufscar.si.catalogo.modelo.DuracaoFaixa;
 import br.ufscar.si.catalogo.modelo.FaixaCD;
 import br.ufscar.si.catalogo.modelo.Jogo;
 import br.ufscar.si.catalogo.modelo.Midia;
-import br.ufscar.si.catalogo.modelo.SerializadorCatalogo;
 
 /*
  * Janela JDialog que permite editar uma mídia existente no catálogo
@@ -333,7 +331,7 @@ public class EditarMidia extends JDialog
 
 		for (int i = 0; i < faixas.length; i++)
 		{
-			Object[] valores = { faixas[i].getNumero(), faixas[i].getFaixa(), faixas[i].getDuracao() };
+			Object[] valores = { faixas[i].getNumero(), faixas[i].getNome(), faixas[i].getDuracao() };
 			((DefaultTableModel) tabelaFaixasCD.getModel()).addRow(valores);
 		}
 
@@ -474,19 +472,8 @@ public class EditarMidia extends JDialog
 
 	private void salvar()
 	{
-
-		try
-		{
-			dispose();
-			SerializadorCatalogo.gravaCatalogo(catalogo, catalogo.getArquivo());
-			JOptionPane.showMessageDialog(contentPanel, "Mídia alterada com sucesso.", "Editar Mídia",
-					JOptionPane.INFORMATION_MESSAGE);
-		}
-		catch (IOException e)
-		{
-			JOptionPane.showMessageDialog(contentPanel, "Não foi possível salvar as alterações.", "Editar Mídia",
-					JOptionPane.ERROR_MESSAGE);
-		}
+		JOptionPane.showMessageDialog(contentPanel, "Mídia alterada com sucesso.", "Editar Mídia",
+				JOptionPane.INFORMATION_MESSAGE);
 	}
 
 }

@@ -1,29 +1,28 @@
 package br.ufscar.si.catalogo.modelo;
 
-import java.io.Serializable;
 import java.text.ParseException;
 
-public class FaixaCD implements Serializable
+public class FaixaCD
 {
 	private int numero;
-	private String faixa;
+	private String nome;
 	private DuracaoFaixa duracao;
 
-	public FaixaCD(int numero, String faixa, DuracaoFaixa duracao) throws ParseException
+	public FaixaCD(int numero, String nome, DuracaoFaixa duracao) throws ParseException
 	{
 		this.numero = numero;
-		this.faixa = faixa;
+		this.nome = nome;
 		this.duracao = duracao;
 	}
-	
+
 	public int getNumero()
 	{
 		return numero;
 	}
 
-	public String getFaixa()
+	public String getNome()
 	{
-		return faixa;
+		return nome;
 	}
 
 	public DuracaoFaixa getDuracao()

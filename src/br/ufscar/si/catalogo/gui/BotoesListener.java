@@ -2,7 +2,6 @@ package br.ufscar.si.catalogo.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -10,7 +9,6 @@ import javax.swing.JTable;
 
 import br.ufscar.si.catalogo.modelo.Catalogo;
 import br.ufscar.si.catalogo.modelo.Midia;
-import br.ufscar.si.catalogo.modelo.SerializadorCatalogo;
 
 public class BotoesListener implements ActionListener
 {
@@ -51,17 +49,8 @@ public class BotoesListener implements ActionListener
 			{
 				Midia midia = (Midia) tabela.getValueAt(tabela.getSelectedRow(), 3);
 				catalogo.removeMidia(midia);
-				try
-				{
-					SerializadorCatalogo.gravaCatalogo(catalogo, catalogo.getArquivo());
-					JOptionPane.showMessageDialog(frame, "Exclusão realizada com sucesso.", "Excluir mídia",
-							JOptionPane.INFORMATION_MESSAGE);
-				}
-				catch (IOException e1)
-				{
-					JOptionPane.showMessageDialog(frame, "Não foi possível salvar a exclusão.", "Excluir mídia",
-							JOptionPane.ERROR_MESSAGE);
-				}
+				JOptionPane.showMessageDialog(frame, "Exclusão realizada com sucesso.", "Excluir mídia",
+						JOptionPane.INFORMATION_MESSAGE);
 				frame.clicaBotaoTodos();
 			}
 		}
@@ -71,7 +60,7 @@ public class BotoesListener implements ActionListener
 		{
 			// Somente exibe a janela para inserir nova mídia caso não tenha
 			// atingido a capacidade máxima
-			if (catalogo.quantidadeDeMidias() < catalogo.quantidadeMaximaDeMidias())
+			if (catalogo.quantidadeDeMidias() < catalogo.getCapacidade())
 			{
 				InserirMidia d_inserir = new InserirMidia(Principal.getFrame(), true, catalogo);
 				d_inserir.setVisible(true);
@@ -79,10 +68,11 @@ public class BotoesListener implements ActionListener
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(frame,
-						"Não é possível inserir novas mídias. Capacidade máxima atingida.\nEste catálogo suporta no máximo "
-								+ catalogo.quantidadeMaximaDeMidias() + " mídias", "Inserir nova mídia",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane
+						.showMessageDialog(frame,
+								"Não é possível inserir novas mídias. Capacidade máxima atingida.\nEste catálogo suporta no máximo "
+										+ catalogo.getCapacidade() + " mídias", "Inserir nova mídia",
+								JOptionPane.ERROR_MESSAGE);
 			}
 
 		}

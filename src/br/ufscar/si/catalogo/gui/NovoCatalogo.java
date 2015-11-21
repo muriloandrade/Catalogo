@@ -7,13 +7,11 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -23,10 +21,10 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
+import br.ufscar.si.catalogo.dao.impl.CatalogoJDBCDAO;
+import br.ufscar.si.catalogo.dao.impl.DAOException;
 import br.ufscar.si.catalogo.modelo.Catalogo;
-import br.ufscar.si.catalogo.modelo.SerializadorCatalogo;
 
 /*
  * Janela JDialog chamada pela janela AbrirCatálogo.
@@ -35,7 +33,7 @@ import br.ufscar.si.catalogo.modelo.SerializadorCatalogo;
 public class NovoCatalogo extends JDialog
 {
 	private final JPanel contentPanel = new JPanel();
-	private JTextField textField;
+	private JTextField txtNome;
 	NovoCatalogo dialogoNovoCatalogo;
 
 	Catalogo catalogo;
@@ -48,7 +46,7 @@ public class NovoCatalogo extends JDialog
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setTitle("Novo Cat\u00E1logo");
-		setBounds(100, 100, 503, 180);
+		setBounds(100, 100, 370, 180);
 		setLocationRelativeTo(null);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 469, 0 };
@@ -59,64 +57,40 @@ public class NovoCatalogo extends JDialog
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		GridBagConstraints gbc_contentPanel = new GridBagConstraints();
 		gbc_contentPanel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_contentPanel.anchor = GridBagConstraints.NORTH;
 		gbc_contentPanel.insets = new Insets(10, 10, 5, 10);
 		gbc_contentPanel.gridx = 0;
 		gbc_contentPanel.gridy = 0;
 		getContentPane().add(contentPanel, gbc_contentPanel);
 
-		JLabel lblLocal = new JLabel("Local:");
+		JLabel lblNome = new JLabel("Nome:");
 
 		JLabel lblQuantidadeMximaDe = new JLabel("Capacidade:");
 
-		textField = new JTextField();
-		textField.setColumns(10);
+		txtNome = new JTextField();
+		txtNome.setColumns(10);
 
-		final JSpinner spinner = new JSpinner();
-		spinner.setModel(new SpinnerNumberModel(150, 1, 300, 1));
+		final JSpinner spnCapacidade = new JSpinner();
+		spnCapacidade.setModel(new SpinnerNumberModel(150, 1, 300, 1));
 
 		JLabel lblMdias = new JLabel("m\u00EDdias");
-
-		JButton btnProcurar = new JButton("Procurar...");
-		btnProcurar.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				JFileChooser fc = new JFileChooser();
-				FileNameExtensionFilter ext = new FileNameExtensionFilter("Arquivo de Catálogo", "dat");
-				fc.setFileFilter(ext);
-				fc.setCurrentDirectory(null);
-				fc.setDialogType(JFileChooser.SAVE_DIALOG);
-				int returnVal = fc.showOpenDialog(owner);
-				if (returnVal == JFileChooser.APPROVE_OPTION)
-				{
-					String nomeArquivo = fc.getSelectedFile().getAbsolutePath();
-					nomeArquivo = AbrirCatalogo.converteParaDAT(nomeArquivo);
-					textField.setText(nomeArquivo);
-				}
-			}
-		});
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 		gl_contentPanel.setHorizontalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING).addGroup(
 				gl_contentPanel.createSequentialGroup().addContainerGap().addGroup(
+						gl_contentPanel.createParallelGroup(Alignment.TRAILING).addComponent(lblQuantidadeMximaDe)
+								.addComponent(lblNome)).addPreferredGap(ComponentPlacement.UNRELATED).addGroup(
 						gl_contentPanel.createParallelGroup(Alignment.LEADING).addGroup(
-								gl_contentPanel.createSequentialGroup().addComponent(lblLocal).addPreferredGap(
-										ComponentPlacement.UNRELATED).addComponent(textField,
-										GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE).addPreferredGap(
-										ComponentPlacement.RELATED).addComponent(btnProcurar, GroupLayout.DEFAULT_SIZE,
-										113, Short.MAX_VALUE)).addGroup(
-								gl_contentPanel.createSequentialGroup().addComponent(lblQuantidadeMximaDe)
-										.addPreferredGap(ComponentPlacement.UNRELATED).addComponent(spinner,
-												GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(ComponentPlacement.RELATED).addComponent(lblMdias)))
-						.addContainerGap()));
+								gl_contentPanel.createSequentialGroup().addComponent(spnCapacidade,
+										GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE).addPreferredGap(
+										ComponentPlacement.RELATED).addComponent(lblMdias).addContainerGap(152,
+										Short.MAX_VALUE)).addComponent(txtNome, GroupLayout.DEFAULT_SIZE, 254,
+								Short.MAX_VALUE))));
 		gl_contentPanel.setVerticalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING).addGroup(
 				gl_contentPanel.createSequentialGroup().addContainerGap().addGroup(
-						gl_contentPanel.createParallelGroup(Alignment.BASELINE).addComponent(lblLocal).addComponent(
-								textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-								GroupLayout.PREFERRED_SIZE).addComponent(btnProcurar)).addGap(18).addGroup(
+						gl_contentPanel.createParallelGroup(Alignment.BASELINE).addComponent(txtNome,
+								GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblNome)).addGap(18).addGroup(
 						gl_contentPanel.createParallelGroup(Alignment.BASELINE, false).addComponent(
-								lblQuantidadeMximaDe).addComponent(spinner, GroupLayout.PREFERRED_SIZE, 23,
+								lblQuantidadeMximaDe).addComponent(spnCapacidade, GroupLayout.PREFERRED_SIZE, 23,
 								GroupLayout.PREFERRED_SIZE).addComponent(lblMdias)).addGap(11)));
 		contentPanel.setLayout(gl_contentPanel);
 		{
@@ -133,37 +107,25 @@ public class NovoCatalogo extends JDialog
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener()
 				{
-					public void actionPerformed(ActionEvent e)
+					public void actionPerformed(ActionEvent event)
 					{
-						String nomeArquivo = textField.getText();
-						if (!nomeArquivo.isEmpty()
-								&& !nomeArquivo.substring(nomeArquivo.length() - 1).equals(File.separator))
+						String nome = txtNome.getText();
+
+						if (!nome.isEmpty())
 						{
-							nomeArquivo = AbrirCatalogo.converteParaDAT(nomeArquivo);
-							arquivo = new File(nomeArquivo);
-							if (arquivo.exists())
+							Catalogo catalogo = new Catalogo(nome, (Integer) spnCapacidade.getValue());
+							CatalogoJDBCDAO catalogoDAO = new CatalogoJDBCDAO();
+							try
 							{
-								JOptionPane.showMessageDialog(owner,
-										"O arquivo escolhido já existe.\nEscolha a opção 'Abrir Catálogo'",
-										"Arquivo existente", JOptionPane.ERROR_MESSAGE);
-								arquivo = null;
-								dispose();
+								catalogoDAO.insert(catalogo);
 							}
-							else
+							catch (DAOException e)
 							{
-								catalogo = new Catalogo((Integer) spinner.getValue());
-								catalogo.setArquivo(arquivo);
-								try
-								{
-									SerializadorCatalogo.gravaCatalogo(catalogo, arquivo);
-								}
-								catch (IOException e1)
-								{
-									JOptionPane.showMessageDialog(owner, "Não foi possível gravar no arquivo",
-											"Erro ao gravar arquivo", JOptionPane.ERROR_MESSAGE);
-								}
-								dispose();
+								JOptionPane.showMessageDialog(dialogoNovoCatalogo,
+										"Não foi possível criar novo catálogo", "Novo Catálogo",
+										JOptionPane.ERROR_MESSAGE);
 							}
+							dispose();
 						}
 					}
 				});

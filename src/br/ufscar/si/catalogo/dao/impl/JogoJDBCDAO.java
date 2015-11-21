@@ -14,7 +14,7 @@ class JogoJDBCDAO extends GenericJDBCDAO implements IJogoDAO
 	@Override
 	public String getTableName()
 	{
-		return Database.DB_NAME + ".\"JOGO\"";
+		return Database.DB_NAME + ".JOGO";
 	}
 
 	@Override

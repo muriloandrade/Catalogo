@@ -1,8 +1,6 @@
 package br.ufscar.si.catalogo.modelo;
 
-import java.io.Serializable;
-
-public abstract class Midia extends ObjectDTO implements Comparable<Midia>, Serializable
+public abstract class Midia extends ObjectDTO implements Comparable<Midia>
 {
 	private String titulo;
 	private Integer anoCriacao;

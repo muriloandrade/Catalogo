@@ -11,6 +11,8 @@ public interface IGenericDAO
 
 	void insert(ObjectDTO dto) throws DAOException;
 
+	void update(ObjectDTO dto) throws DAOException;
+
 	int selectLastID() throws DAOException;
 
 	ObjectDTO selectByID(int id) throws DAOException;

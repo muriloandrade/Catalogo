@@ -26,6 +26,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import br.ufscar.si.catalogo.dao.impl.CDJDBCDAO;
+import br.ufscar.si.catalogo.dao.impl.DAOException;
+import br.ufscar.si.catalogo.dao.impl.DVDJDBCDAO;
+import br.ufscar.si.catalogo.dao.impl.GenericJDBCDAO;
+import br.ufscar.si.catalogo.dao.impl.JogoJDBCDAO;
 import br.ufscar.si.catalogo.modelo.ArtistaDVD;
 import br.ufscar.si.catalogo.modelo.CD;
 import br.ufscar.si.catalogo.modelo.Catalogo;
@@ -42,7 +47,7 @@ public class EditarMidia extends JDialog
 {
 	private final JPanel cards = new JPanel();
 
-	private JDialog contentPanel;
+	private JDialog dialogEditar;
 
 	Catalogo catalogo;
 	Midia midia;
@@ -62,7 +67,7 @@ public class EditarMidia extends JDialog
 	public EditarMidia(JFrame owner, boolean modal, Catalogo catalogo, final Midia midia)
 	{
 		super(owner, modal);
-		this.contentPanel = this;
+		this.dialogEditar = this;
 		this.catalogo = catalogo;
 		this.midia = midia;
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -390,7 +395,9 @@ public class EditarMidia extends JDialog
 			anoCriacao = Integer.parseInt(anoCD.getText());
 			if (anoCD.getText().length() != 4) throw new NumberFormatException();
 			CD cd = new CD(titulo, anoCriacao, artista);
+			cd.setId(midia.getId());
 
+			FaixaCD faixa;
 			String nome;
 			DuracaoFaixa duracao;
 
@@ -398,20 +405,24 @@ public class EditarMidia extends JDialog
 			{
 				nome = (String) tabelaFaixasCD.getValueAt(i, 1);
 				duracao = (DuracaoFaixa) tabelaFaixasCD.getValueAt(i, 2);
-				cd.adicionaFaixa(i + 1, nome, duracao);
+				if (nome != null && !nome.isEmpty())
+				{
+					faixa = new FaixaCD(i + 1, nome, duracao);
+					cd.setFaixa(i, faixa);
+				}
 			}
 			catalogo.removeMidia(midia);
 			catalogo.adicionaMidia(cd);
-			salvar();
+			salvar(cd);
 		}
 		catch (NumberFormatException e)
 		{
-			JOptionPane.showMessageDialog(contentPanel, "Formato incorreto no campo 'Ano'", "Valor incorreto",
+			JOptionPane.showMessageDialog(dialogEditar, "Formato incorreto no campo 'Ano'", "Valor incorreto",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		catch (ParseException e)
 		{
-			JOptionPane.showMessageDialog(contentPanel, "Formato incorreto no campo 'Duracao'", "Valor incorreto",
+			JOptionPane.showMessageDialog(dialogEditar, "Formato incorreto no campo 'Duracao'", "Valor incorreto",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -427,23 +438,30 @@ public class EditarMidia extends JDialog
 			anoCriacao = Integer.parseInt(anoDVD.getText());
 			if (anoDVD.getText().length() != 4) throw new NumberFormatException();
 			DVD dvd = new DVD(titulo, anoCriacao, diretor);
+			dvd.setId(midia.getId());
 
-			String artista;
+			ArtistaDVD artista;
+			String nome;
 			String papel;
+			int count = 0;
 
 			for (int i = 0; i < tabelaArtistasDVD.getRowCount(); i++)
 			{
-				artista = (String) tabelaArtistasDVD.getValueAt(i, 0);
+				nome = (String) tabelaArtistasDVD.getValueAt(i, 0);
 				papel = (String) tabelaArtistasDVD.getValueAt(i, 1);
-				dvd.adicionaArtista(artista, papel);
+				if ((nome != null && !nome.isEmpty()) || (papel != null && !papel.isEmpty()))
+				{
+					artista = new ArtistaDVD(nome, papel);
+					dvd.setArtista(count++, artista);
+				}
 			}
 			catalogo.removeMidia(midia);
 			catalogo.adicionaMidia(dvd);
-			salvar();
+			salvar(dvd);
 		}
 		catch (NumberFormatException e)
 		{
-			JOptionPane.showMessageDialog(contentPanel, "Formato incorreto no campo 'Ano'", "Valor incorreto",
+			JOptionPane.showMessageDialog(dialogEditar, "Formato incorreto no campo 'Ano'", "Valor incorreto",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -459,20 +477,47 @@ public class EditarMidia extends JDialog
 			anoCriacao = Integer.parseInt(anoJogo.getText());
 			if (anoJogo.getText().length() != 4) throw new NumberFormatException();
 			Jogo jogo = new Jogo(titulo, anoCriacao, genero);
+			jogo.setId(midia.getId());
 			catalogo.removeMidia(midia);
 			catalogo.adicionaMidia(jogo);
-			salvar();
+			salvar(jogo);
 		}
 		catch (NumberFormatException e)
 		{
-			JOptionPane.showMessageDialog(contentPanel, "Formato incorreto no campo 'Ano'", "Valor incorreto",
+			JOptionPane.showMessageDialog(dialogEditar, "Formato incorreto no campo 'Ano'", "Valor incorreto",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
-	private void salvar()
+	private void salvar(Midia midiaAtualizada)
 	{
-		JOptionPane.showMessageDialog(contentPanel, "Mídia alterada com sucesso.", "Editar Mídia",
+		dispose();
+		GenericJDBCDAO genericDAO = null;
+
+		switch (midia.getTipo())
+		{
+			case CD:
+				genericDAO = new CDJDBCDAO();
+				break;
+			case DVD:
+				genericDAO = new DVDJDBCDAO();
+				break;
+			case Jogo:
+				genericDAO = new JogoJDBCDAO();
+				break;
+		}
+
+		try
+		{
+			genericDAO.update(midiaAtualizada);
+		}
+		catch (DAOException e)
+		{
+			JOptionPane.showMessageDialog(dialogEditar, "Erro de operação ao acessar banco de dados.",
+					"Excluir catálogo", JOptionPane.ERROR_MESSAGE);
+		}
+
+		JOptionPane.showMessageDialog(dialogEditar, "Mídia alterada com sucesso.", "Editar Mídia",
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 

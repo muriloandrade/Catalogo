@@ -41,6 +41,11 @@ public class Catalogo extends ObjectDTO implements ColecaoMidia
 
 		return false;
 	}
+	
+	public boolean adicionaTodasMidias(ArrayList<Midia> midias)
+	{
+		return this.midias.addAll((ArrayList<Midia>) midias);
+	}
 
 	public boolean removeMidia(Midia midia)
 	{

@@ -18,15 +18,33 @@ public class CD extends Midia
 
 		// Inicia a contagem de faixas adicionadas a este CD
 		this.qtdFaixasAdicionadas = 0;
+
+		// Inicia o array de faixas
+		for (int i = 0; i < MAX_FAIXAS; i++)
+		{
+			try
+			{
+				adicionaFaixa(new FaixaCD(i + 1, null, null));
+			}
+			catch (ParseException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
-	public void adicionaFaixa(int numero, String nome, DuracaoFaixa duracao) throws ParseException
+	public void adicionaFaixa(FaixaCD faixa) throws ParseException
 	{
 		// Somente adiciona se o array nao estiver cheio
 		if (qtdFaixasAdicionadas < MAX_FAIXAS)
 		{
-			faixas[qtdFaixasAdicionadas++] = new FaixaCD(numero, nome, duracao);
+			faixas[qtdFaixasAdicionadas++] = faixa;
 		}
+	}
+
+	public void setFaixa(int pos, FaixaCD faixa)
+	{
+		faixas[pos] = faixa;
 	}
 
 	public String getArtista()

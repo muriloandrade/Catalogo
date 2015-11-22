@@ -2,7 +2,7 @@ package br.ufscar.si.catalogo.modelo;
 
 import java.text.ParseException;
 
-public class FaixaCD
+public class FaixaCD extends ObjectDTO
 {
 	private int numero;
 	private String nome;

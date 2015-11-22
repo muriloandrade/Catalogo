@@ -34,7 +34,7 @@ public class AbrirCatalogo extends JDialog
 {
 
 	private Catalogo catalogo = null;
-	private AbrirCatalogo dialogoAbrirCatalogo;
+	private AbrirCatalogo dialogAbrirCatalogo;
 	private JTable tableCatalogos;
 
 	private JButton btnNovo = null;
@@ -45,7 +45,7 @@ public class AbrirCatalogo extends JDialog
 	{
 		super(owner, modal);
 		setResizable(false);
-		dialogoAbrirCatalogo = this;
+		dialogAbrirCatalogo = this;
 
 		setTitle("Abrir Cat\u00E1logo");
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -101,7 +101,7 @@ public class AbrirCatalogo extends JDialog
 			{
 				CatalogoJDBCDAO catalogoDAO = new CatalogoJDBCDAO();
 				catalogo = (Catalogo) tableCatalogos.getValueAt(tableCatalogos.getSelectedRow(), 2);
-				int confirma_exclusao = JOptionPane.showConfirmDialog(dialogoAbrirCatalogo,
+				int confirma_exclusao = JOptionPane.showConfirmDialog(dialogAbrirCatalogo,
 						"Tem certeza que deseja excluir " + catalogo.getNome()
 								+ "?\nTodas as mídias deste catálogo serão excluídas.", "Excluir mídia",
 						JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -113,8 +113,9 @@ public class AbrirCatalogo extends JDialog
 					}
 					catch (DAOException e1)
 					{
-						JOptionPane.showMessageDialog(dialogoAbrirCatalogo, "Erro ao acessar banco de dados.",
-								"Excluir catálogo", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(dialogAbrirCatalogo,
+								"Erro de operação ao acessar banco de dados.", "Excluir catálogo",
+								JOptionPane.ERROR_MESSAGE);
 					}
 					recriarTabela();
 				}
@@ -202,8 +203,8 @@ public class AbrirCatalogo extends JDialog
 		}
 		catch (DAOException e)
 		{
-			JOptionPane.showMessageDialog(dialogoAbrirCatalogo, "Erro ao acessar banco de dados.", "Abrir catálogo",
-					JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(dialogAbrirCatalogo, "Erro de operação ao acessar banco de dados.",
+					"Excluir catálogo", JOptionPane.ERROR_MESSAGE);
 			dispose();
 		}
 	}

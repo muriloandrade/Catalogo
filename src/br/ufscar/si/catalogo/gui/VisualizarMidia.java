@@ -290,7 +290,6 @@ public class VisualizarMidia extends JDialog
 		tabelaFaixasCD.getColumnModel().getColumn(2).setMaxWidth(130);
 
 		FaixaCD[] faixas = cd.getFaixas();
-	
 		for (int i = 0; i < faixas.length; i++)
 		{
 			if (faixas[i].getNome() != null)
@@ -324,11 +323,13 @@ public class VisualizarMidia extends JDialog
 		tabelaArtistasDVD.getColumnModel().getColumn(1).setPreferredWidth(150);
 
 		ArtistaDVD[] artistas = dvd.getArtistas();
-
 		for (int i = 0; i < artistas.length; i++)
 		{
-			Object[] valores = { artistas[i].getNome(), artistas[i].getPapel() };
-			((DefaultTableModel) tabelaArtistasDVD.getModel()).addRow(valores);
+			if (artistas[i].getNome() != null || artistas[i].getPapel() != null)
+			{
+				Object[] valores = { artistas[i].getNome(), artistas[i].getPapel() };
+				((DefaultTableModel) tabelaArtistasDVD.getModel()).addRow(valores);
+			}
 		}
 	}
 

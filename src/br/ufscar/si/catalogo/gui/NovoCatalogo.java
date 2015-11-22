@@ -34,7 +34,7 @@ public class NovoCatalogo extends JDialog
 {
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtNome;
-	NovoCatalogo dialogoNovoCatalogo;
+	NovoCatalogo dialogNovoCatalogo;
 
 	Catalogo catalogo;
 	File arquivo = null;
@@ -42,7 +42,7 @@ public class NovoCatalogo extends JDialog
 	public NovoCatalogo(final JFrame owner, boolean modal)
 	{
 		super(owner, modal);
-		dialogoNovoCatalogo = this;
+		dialogNovoCatalogo = this;
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setTitle("Novo Cat\u00E1logo");
@@ -121,9 +121,8 @@ public class NovoCatalogo extends JDialog
 							}
 							catch (DAOException e)
 							{
-								JOptionPane.showMessageDialog(dialogoNovoCatalogo,
-										"Não foi possível criar novo catálogo", "Novo Catálogo",
-										JOptionPane.ERROR_MESSAGE);
+								JOptionPane.showMessageDialog(dialogNovoCatalogo, "Erro de operação ao acessar banco de dados.",
+										"Excluir catálogo", JOptionPane.ERROR_MESSAGE);
 							}
 							dispose();
 						}

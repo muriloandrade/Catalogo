@@ -1,6 +1,6 @@
 package br.ufscar.si.catalogo.modelo;
 
-public class ArtistaDVD
+public class ArtistaDVD extends ObjectDTO
 {
 	private String nome;
 	private String papel;

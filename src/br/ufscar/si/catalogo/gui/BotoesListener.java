@@ -7,6 +7,11 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
+import br.ufscar.si.catalogo.dao.impl.CDJDBCDAO;
+import br.ufscar.si.catalogo.dao.impl.DAOException;
+import br.ufscar.si.catalogo.dao.impl.DVDJDBCDAO;
+import br.ufscar.si.catalogo.dao.impl.GenericJDBCDAO;
+import br.ufscar.si.catalogo.dao.impl.JogoJDBCDAO;
 import br.ufscar.si.catalogo.modelo.Catalogo;
 import br.ufscar.si.catalogo.modelo.Midia;
 
@@ -49,6 +54,32 @@ public class BotoesListener implements ActionListener
 			{
 				Midia midia = (Midia) tabela.getValueAt(tabela.getSelectedRow(), 3);
 				catalogo.removeMidia(midia);
+
+				GenericJDBCDAO genericDAO = null;
+
+				switch (midia.getTipo())
+				{
+					case CD:
+						genericDAO = new CDJDBCDAO();
+						break;
+					case DVD:
+						genericDAO = new DVDJDBCDAO();
+						break;
+					case Jogo:
+						genericDAO = new JogoJDBCDAO();
+						break;
+				}
+
+				try
+				{
+					genericDAO.delete(midia.getId());
+				}
+				catch (DAOException e1)
+				{
+					JOptionPane.showMessageDialog(frame, "Erro de operação ao acessar banco de dados.",
+							"Excluir catálogo", JOptionPane.ERROR_MESSAGE);
+				}
+
 				JOptionPane.showMessageDialog(frame, "Exclusão realizada com sucesso.", "Excluir mídia",
 						JOptionPane.INFORMATION_MESSAGE);
 				frame.clicaBotaoTodos();

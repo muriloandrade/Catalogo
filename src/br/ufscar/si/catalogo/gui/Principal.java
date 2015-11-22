@@ -511,5 +511,10 @@ public class Principal extends JFrame
 		btnRemover.addActionListener(new BotoesListener());
 		btnInserirNovaMidia.addActionListener(new BotoesListener());
 	}
+	
+	public static int getCatalogoID()
+	{
+		return catalogo.getId();
+	}
 
 }

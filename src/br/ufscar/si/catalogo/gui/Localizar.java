@@ -10,7 +10,10 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
+import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -25,7 +28,12 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
 
+import br.ufscar.si.catalogo.dao.impl.CatalogoJDBCDAO;
+import br.ufscar.si.catalogo.dao.impl.DAOException;
 import br.ufscar.si.catalogo.modelo.Catalogo;
+import br.ufscar.si.catalogo.modelo.Midia;
+import br.ufscar.si.catalogo.modelo.ObjectDTO;
+import br.ufscar.si.catalogo.modelo.Tipos;
 
 /*
  * Janela JDialog que permite localizar uma mídia existente no catálogo pelo Título ou pelo Ano
@@ -33,19 +41,27 @@ import br.ufscar.si.catalogo.modelo.Catalogo;
 public class Localizar extends JDialog
 {
 	private static final long serialVersionUID = 1L;
-	private final JPanel contentPanel = new JPanel();
-	private JTextField textField;
-	private final ButtonGroup buttonGroup = new ButtonGroup();
+	private JPanel contentPanel = new JPanel();
+	private JTextField txtTermo;
+	private ButtonGroup grupoBotoesModo = new ButtonGroup();
 
-	private static Localizar localizar;
+	private JDialog dialogLocalizar;
 
-	private String value;
+	private ArrayList<Midia> midiasEncontradas = new ArrayList<Midia>();
+
+	private String termo = null;
+	private String modo = null;
+
+	JCheckBox chckbxCd = new JCheckBox("CD");
+	JCheckBox chckbxDvd = new JCheckBox("DVD");
+	JCheckBox chckbxJogo = new JCheckBox("Jogo");
+	JCheckBox[] boxesTipos = { chckbxCd, chckbxDvd, chckbxJogo };
 
 	public Localizar(Frame owner, boolean modal, Catalogo catalogo)
 	{
 		super(owner, modal);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		localizar = this;
+		dialogLocalizar = this;
 		setResizable(false);
 		setTitle("Localizar m\u00EDdia");
 		setBounds(owner.getBounds().x + 120, owner.getBounds().y + 160, 480, 160);
@@ -59,14 +75,14 @@ public class Localizar extends JDialog
 		JLabel lblTermo = new JLabel("Termo:");
 
 		final JRadioButton rdbtnPorTtulo = new JRadioButton("por T\u00EDtulo");
-		buttonGroup.add(rdbtnPorTtulo);
+		grupoBotoesModo.add(rdbtnPorTtulo);
 		rdbtnPorTtulo.setSelected(true);
 
 		final JRadioButton rdbtnPorAno = new JRadioButton("por Ano");
-		buttonGroup.add(rdbtnPorAno);
+		grupoBotoesModo.add(rdbtnPorAno);
 
-		textField = new JTextField();
-		textField.setColumns(10);
+		txtTermo = new JTextField();
+		txtTermo.setColumns(10);
 
 		JLabel lblTipo = new JLabel("Tipo:");
 
@@ -81,7 +97,7 @@ public class Localizar extends JDialog
 								lblModo).addComponent(lblTipo)).addGap(10).addGroup(
 						gl_contentPanel.createParallelGroup(Alignment.LEADING, false).addGroup(
 								gl_contentPanel.createSequentialGroup().addComponent(rdbtnPorTtulo).addGap(30)
-										.addComponent(rdbtnPorAno)).addComponent(textField, GroupLayout.DEFAULT_SIZE,
+										.addComponent(rdbtnPorAno)).addComponent(txtTermo, GroupLayout.DEFAULT_SIZE,
 								250, Short.MAX_VALUE).addComponent(panel, GroupLayout.DEFAULT_SIZE,
 								GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)).addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE).addContainerGap()));
@@ -95,7 +111,7 @@ public class Localizar extends JDialog
 														lblModo).addComponent(rdbtnPorTtulo).addComponent(rdbtnPorAno))
 												.addGap(10).addGroup(
 														gl_contentPanel.createParallelGroup(Alignment.BASELINE)
-																.addComponent(lblTermo).addComponent(textField,
+																.addComponent(lblTermo).addComponent(txtTermo,
 																		GroupLayout.PREFERRED_SIZE,
 																		GroupLayout.DEFAULT_SIZE,
 																		GroupLayout.PREFERRED_SIZE)).addGap(10)
@@ -121,31 +137,51 @@ public class Localizar extends JDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				value = textField.getText();
+				modo = rdbtnPorAno.isSelected() ? "Ano" : "Titulo";
+				termo = txtTermo.getText();
 
 				if (rdbtnPorAno.isSelected())
 				{
 					try
 					{
-						Integer.parseInt(value);
-						if (value.length() != 4)
+						Integer.parseInt(termo);
+						if (termo.length() != 4)
 						{
-							JOptionPane.showMessageDialog(localizar, "Digitar número de 4 digitos.", "Valor incorreto",
-									JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(dialogLocalizar, "Digitar número de 4 digitos.",
+									"Valor incorreto", JOptionPane.ERROR_MESSAGE);
 							return;
 						}
-						localizar.setVisible(false);
+						dialogLocalizar.setVisible(false);
 					}
 					catch (Exception e2)
 					{
-						JOptionPane.showMessageDialog(localizar, "Digitar número de 4 digitos.", "Valor incorreto",
-								JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(dialogLocalizar, "Digitar número de 4 digitos.",
+								"Valor incorreto", JOptionPane.ERROR_MESSAGE);
+						return;
 					}
 				}
-				else
+
+				Tipos[] tipos = new Tipos[Tipos.values().length - 1];
+				int count = 0;
+
+				for (JCheckBox checkBox : boxesTipos)
 				{
-					localizar.setVisible(false);
+					if (checkBox.isSelected()) tipos[count++] = Tipos.valueOf(checkBox.getText());
 				}
+
+				CatalogoJDBCDAO catalogoDAO = new CatalogoJDBCDAO();
+				try
+				{
+					midiasEncontradas = catalogoDAO.selectMidiasPorTitulo(modo, txtTermo.getText(), tipos);
+				}
+				catch (DAOException e1)
+				{
+					JOptionPane.showMessageDialog(dialogLocalizar, "Erro de operação ao acessar banco de dados.",
+							"Localizar mídia", JOptionPane.ERROR_MESSAGE);
+					e1.printStackTrace();
+				}
+
+				dialogLocalizar.setVisible(false);
 
 			}
 		});
@@ -161,8 +197,8 @@ public class Localizar extends JDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				value = null;
-				localizar.setVisible(false);
+				termo = null;
+				dialogLocalizar.setVisible(false);
 			}
 		});
 		GridBagConstraints gbc_btnCancelar = new GridBagConstraints();
@@ -182,7 +218,6 @@ public class Localizar extends JDialog
 		flowLayout.setHgap(10);
 		panel.add(panel_2);
 
-		JCheckBox chckbxCd = new JCheckBox("CD");
 		chckbxCd.setSelected(true);
 		chckbxCd.setMinimumSize(new Dimension(0, 0));
 		panel_2.add(chckbxCd);
@@ -195,7 +230,6 @@ public class Localizar extends JDialog
 		flowLayout_1.setHgap(0);
 		panel.add(panel_3);
 
-		JCheckBox chckbxDvd = new JCheckBox("DVD");
 		chckbxDvd.setSelected(true);
 		panel_3.add(chckbxDvd);
 
@@ -208,15 +242,24 @@ public class Localizar extends JDialog
 		flowLayout_2.setHgap(10);
 		panel.add(panel_4);
 
-		JCheckBox chckbxJogo = new JCheckBox("Jogo");
 		chckbxJogo.setSelected(true);
 		panel_4.add(chckbxJogo);
 		contentPanel.setLayout(gl_contentPanel);
 	}
 
-	public String getValue()
+	public ArrayList<Midia> getMidiasEncontradas()
 	{
-		return value;
+		return midiasEncontradas;
+	}
+
+	public String getTermo()
+	{
+		return termo;
+	}
+	
+	public String getModo()
+	{
+		return modo;
 	}
 
 }

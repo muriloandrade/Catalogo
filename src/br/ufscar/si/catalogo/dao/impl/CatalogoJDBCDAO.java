@@ -148,4 +148,57 @@ public class CatalogoJDBCDAO extends GenericJDBCDAO implements ICatalogoDAO
 			fechaRecursos();
 		}
 	}
+
+	public ArrayList<Midia> selectMidiasPorTitulo(String modo, String termo, Tipos[] tipos) throws DAOException
+	{
+		ArrayList<Midia> midias = new ArrayList<Midia>();
+
+		try
+		{
+			conn = new ConnectionFactory().getConnection();
+
+			GenericJDBCDAO genericDAO = null;
+
+			for (Tipos tipo : tipos)
+			{
+				if (tipo != null)
+				{
+					String sql = modo.equals("Ano") 
+							? "SELECT * FROM " + Database.DB_NAME + "." + tipo + " WHERE ANO LIKE " + termo 
+							: "SELECT * FROM " + Database.DB_NAME + "." + tipo + " WHERE TITULO LIKE '%" + termo + "%'";
+					stmt = conn.createStatement();
+					rs = stmt.executeQuery(sql);
+
+					switch (tipo)
+					{
+						case CD:
+							genericDAO = new CDJDBCDAO();
+							break;
+						case DVD:
+							genericDAO = new DVDJDBCDAO();
+							break;
+						case Jogo:
+							genericDAO = new JogoJDBCDAO();
+							break;
+					}
+
+					while (rs.next())
+					{
+						midias.add((Midia) genericDAO.createDTO(rs));
+					}
+				}
+			}
+
+		}
+		catch (SQLException e)
+		{
+			throw new DAOException(e);
+		}
+		finally
+		{
+			fechaRecursos();
+		}
+
+		return midias;
+	}
 }

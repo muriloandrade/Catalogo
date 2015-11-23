@@ -2,6 +2,7 @@ package br.ufscar.si.catalogo.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -113,14 +114,13 @@ public class BotoesListener implements ActionListener
 		{
 			Localizar d_localizar = new Localizar(Principal.getFrame(), true, catalogo);
 			d_localizar.setVisible(true);
-			d_localizar.dispose();
-			if (d_localizar.getValue() != null)
-			{
-				frame.getLabelListagem().setText("Lista: Resultado da pesquisa por '" + d_localizar.getValue() + "'");
-				frame.limparBotoesTipo();
-				tabela.clearSelection();
-				frame.botoesVER_SetEnable(false);
-			}
+			frame.getLabelListagem().setText("Lista: Resultado da pesquisa por " + d_localizar.getModo() + " = '" + d_localizar.getTermo() + "'");
+			frame.limparBotoesTipo();
+			tabela.clearSelection();
+			frame.botoesVER_SetEnable(false);
+			ArrayList<Midia> midiasEncontradas = d_localizar.getMidiasEncontradas();
+			frame.recriaTabela(midiasEncontradas);
+			frame.getLabelTotalMidias().setText("Total: " + midiasEncontradas.size() + (midiasEncontradas.size() == 1 ? " mídia" : " mídias"));
 		}
 	}
 }

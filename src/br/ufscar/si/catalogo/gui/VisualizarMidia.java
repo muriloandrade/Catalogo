@@ -248,7 +248,7 @@ public class VisualizarMidia extends JDialog
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener()
 				{
-					public void actionPerformed(ActionEvent e)
+					public void actionPerformed(ActionEvent event)
 					{
 						dispose();
 					}

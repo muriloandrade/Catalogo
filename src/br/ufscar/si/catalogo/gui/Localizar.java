@@ -11,9 +11,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Enumeration;
 
-import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -32,7 +30,6 @@ import br.ufscar.si.catalogo.dao.impl.CatalogoJDBCDAO;
 import br.ufscar.si.catalogo.dao.impl.DAOException;
 import br.ufscar.si.catalogo.modelo.Catalogo;
 import br.ufscar.si.catalogo.modelo.Midia;
-import br.ufscar.si.catalogo.modelo.ObjectDTO;
 import br.ufscar.si.catalogo.modelo.Tipos;
 
 /*
@@ -135,54 +132,55 @@ public class Localizar extends JDialog
 		JButton btnPesquisar = new JButton("Localizar");
 		btnPesquisar.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
+			public void actionPerformed(ActionEvent event)
 			{
 				modo = rdbtnPorAno.isSelected() ? "Ano" : "Titulo";
 				termo = txtTermo.getText();
 
-				if (rdbtnPorAno.isSelected())
+				if (!termo.isEmpty())
 				{
-					try
+					if (rdbtnPorAno.isSelected())
 					{
-						Integer.parseInt(termo);
-						if (termo.length() != 4)
+						try
+						{
+							Integer.parseInt(termo);
+							if (termo.length() != 4)
+							{
+								JOptionPane.showMessageDialog(dialogLocalizar, "Digitar número de 4 digitos.",
+										"Valor incorreto", JOptionPane.ERROR_MESSAGE);
+								return;
+							}
+							dialogLocalizar.setVisible(false);
+						}
+						catch (Exception e)
 						{
 							JOptionPane.showMessageDialog(dialogLocalizar, "Digitar número de 4 digitos.",
 									"Valor incorreto", JOptionPane.ERROR_MESSAGE);
 							return;
 						}
-						dialogLocalizar.setVisible(false);
 					}
-					catch (Exception e2)
+
+					Tipos[] tipos = new Tipos[Tipos.values().length - 1];
+					int count = 0;
+
+					for (JCheckBox checkBox : boxesTipos)
 					{
-						JOptionPane.showMessageDialog(dialogLocalizar, "Digitar número de 4 digitos.",
-								"Valor incorreto", JOptionPane.ERROR_MESSAGE);
-						return;
+						if (checkBox.isSelected()) tipos[count++] = Tipos.valueOf(checkBox.getText());
 					}
+
+					CatalogoJDBCDAO catalogoDAO = new CatalogoJDBCDAO();
+					try
+					{
+						midiasEncontradas = catalogoDAO.selectMidiasPorTitulo(modo, txtTermo.getText(), tipos);
+					}
+					catch (DAOException e)
+					{
+						JOptionPane.showMessageDialog(dialogLocalizar, "Erro de operação ao acessar banco de dados.",
+								"Localizar mídia", JOptionPane.ERROR_MESSAGE);
+					}
+
+					dialogLocalizar.setVisible(false);
 				}
-
-				Tipos[] tipos = new Tipos[Tipos.values().length - 1];
-				int count = 0;
-
-				for (JCheckBox checkBox : boxesTipos)
-				{
-					if (checkBox.isSelected()) tipos[count++] = Tipos.valueOf(checkBox.getText());
-				}
-
-				CatalogoJDBCDAO catalogoDAO = new CatalogoJDBCDAO();
-				try
-				{
-					midiasEncontradas = catalogoDAO.selectMidiasPorTitulo(modo, txtTermo.getText(), tipos);
-				}
-				catch (DAOException e1)
-				{
-					JOptionPane.showMessageDialog(dialogLocalizar, "Erro de operação ao acessar banco de dados.",
-							"Localizar mídia", JOptionPane.ERROR_MESSAGE);
-					e1.printStackTrace();
-				}
-
-				dialogLocalizar.setVisible(false);
-
 			}
 		});
 		GridBagConstraints gbc_btnPesquisar = new GridBagConstraints();
@@ -195,7 +193,7 @@ public class Localizar extends JDialog
 		JButton btnCancelar = new JButton("Cancelar");
 		btnCancelar.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
+			public void actionPerformed(ActionEvent event)
 			{
 				termo = null;
 				dialogLocalizar.setVisible(false);
@@ -256,7 +254,7 @@ public class Localizar extends JDialog
 	{
 		return termo;
 	}
-	
+
 	public String getModo()
 	{
 		return modo;

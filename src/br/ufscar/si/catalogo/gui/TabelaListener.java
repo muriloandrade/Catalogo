@@ -15,9 +15,9 @@ public class TabelaListener implements ListSelectionListener
 		this.frame = frame;
 	}
 
-	public void valueChanged(ListSelectionEvent e)
+	public void valueChanged(ListSelectionEvent event)
 	{
-		if (e.getValueIsAdjusting()) { return; }
+		if (event.getValueIsAdjusting()) { return; }
 		if (tabela.getSelectedRowCount() > 0) frame.botoesVER_SetEnable(true);
 	}
 

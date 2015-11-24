@@ -6,7 +6,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -36,8 +35,7 @@ public class NovoCatalogo extends JDialog
 	private JTextField txtNome;
 	NovoCatalogo dialogNovoCatalogo;
 
-	Catalogo catalogo;
-	File arquivo = null;
+	Catalogo catalogo = null;
 
 	public NovoCatalogo(final JFrame owner, boolean modal)
 	{
@@ -113,7 +111,7 @@ public class NovoCatalogo extends JDialog
 
 						if (!nome.isEmpty())
 						{
-							Catalogo catalogo = new Catalogo(nome, (Integer) spnCapacidade.getValue());
+							catalogo = new Catalogo(nome, (Integer) spnCapacidade.getValue());
 							CatalogoJDBCDAO catalogoDAO = new CatalogoJDBCDAO();
 							try
 							{
@@ -121,8 +119,9 @@ public class NovoCatalogo extends JDialog
 							}
 							catch (DAOException e)
 							{
-								JOptionPane.showMessageDialog(dialogNovoCatalogo, "Erro de operação ao acessar banco de dados.",
-										"Excluir catálogo", JOptionPane.ERROR_MESSAGE);
+								JOptionPane.showMessageDialog(dialogNovoCatalogo,
+										"Erro de operação ao acessar banco de dados.", "Excluir catálogo",
+										JOptionPane.ERROR_MESSAGE);
 							}
 							dispose();
 						}
@@ -145,8 +144,8 @@ public class NovoCatalogo extends JDialog
 		}
 	}
 
-	public File getArquivo()
+	public Catalogo getCatalogo()
 	{
-		return arquivo;
+		return catalogo;
 	}
 }

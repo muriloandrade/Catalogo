@@ -111,7 +111,7 @@ public class InserirMidia extends JDialog
 		rdbtnCd.setMnemonic(1);
 		rdbtnCd.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
+			public void actionPerformed(ActionEvent event)
 			{
 				limparCampos();
 				((CardLayout) cards.getLayout()).show(cards, "cardCD");
@@ -125,7 +125,7 @@ public class InserirMidia extends JDialog
 		rdbtnDvd.setMnemonic(2);
 		rdbtnDvd.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
+			public void actionPerformed(ActionEvent event)
 			{
 				limparCampos();
 				((CardLayout) cards.getLayout()).show(cards, "cardDVD");
@@ -138,7 +138,7 @@ public class InserirMidia extends JDialog
 		rdbtnJogo.setMnemonic(3);
 		rdbtnJogo.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
+			public void actionPerformed(ActionEvent event)
 			{
 				limparCampos();
 				((CardLayout) cards.getLayout()).show(cards, "cardJogo");
@@ -331,7 +331,7 @@ public class InserirMidia extends JDialog
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
+			public void actionPerformed(ActionEvent event)
 			{
 				switch (buttonGroup.getSelection().getMnemonic())
 				{
@@ -351,7 +351,7 @@ public class InserirMidia extends JDialog
 		JButton btnCancelar = new JButton("Cancelar");
 		btnCancelar.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
+			public void actionPerformed(ActionEvent event)
 			{
 				dispose();
 			}

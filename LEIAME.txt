@@ -1,0 +1,11 @@
+// BANCO DE DADOS
+Para criar a estrutura do banco de dados, executar a seguinte classe:
+br.ufscar.si.catalogo.util.Database.java
+
+USER = root
+PASSWORD = root
+
+
+// PROGRAMA
+Para rodar o programa, executar a seguinte classe:
+br.ufscar.si.catalogo.gui.Principal.java

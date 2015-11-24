@@ -263,7 +263,7 @@ public class EditarMidia extends JDialog
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener()
 				{
-					public void actionPerformed(ActionEvent e)
+					public void actionPerformed(ActionEvent event)
 					{
 						switch (midia.getTipo())
 						{
@@ -285,7 +285,7 @@ public class EditarMidia extends JDialog
 				JButton cancelButton = new JButton("Cancelar");
 				cancelButton.addActionListener(new ActionListener()
 				{
-					public void actionPerformed(ActionEvent e)
+					public void actionPerformed(ActionEvent event)
 					{
 						dispose();
 					}

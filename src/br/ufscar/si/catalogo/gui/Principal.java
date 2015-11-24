@@ -11,6 +11,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import javax.swing.Box;
@@ -26,9 +30,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
@@ -62,11 +68,21 @@ public class Principal extends JFrame
 	private JRadioButton rdbtnCds;
 	private JRadioButton rdbtnDvds;
 	private JRadioButton rdbtnJogos;
-	private JButton btnLocalizarMdia;
+	private JRadioButtonMenuItem rdbtnTodosMenu;
+	private JRadioButtonMenuItem rdbtnCdsMenu;
+	private JRadioButtonMenuItem rdbtnDvdsMenu;
+	private JRadioButtonMenuItem rdbtnJogosMenu;
+	private JMenuItem btnLocalizarMidiaMenu;
+	private JButton btnLocalizarMidia;
 	private JButton btnVisualizar;
 	private JButton btnEditar;
 	private JButton btnRemover;
 	private JButton btnInserirNovaMidia;
+	private JMenuItem btnVisualizarMenu;
+	private JMenuItem btnEditarMenu;
+	private JMenuItem btnRemoverMenu;
+	private JMenuItem btnInserirNovaMidiaMenu;
+	private final ButtonGroup grupoBotoesTipoNoMenu = new ButtonGroup();
 
 	// Inicia a execução do programa na fila do thread
 	public static void main(String[] args)
@@ -95,7 +111,8 @@ public class Principal extends JFrame
 
 		// Cria a interface principal
 		geraInterface();
-		
+
+		// Ações que devem ocorrer após a criação dos elementos gráficos
 		EventQueue.invokeLater(new Runnable()
 		{
 			public void run()
@@ -105,7 +122,7 @@ public class Principal extends JFrame
 					frame.atribuiListeners();
 
 					// Exibe a tabela com todas as midias
-					frame.clicaBotaoTodos();
+					frame.clicaBotaoTodosMenu();
 				}
 				catch (Exception e)
 				{
@@ -144,6 +161,7 @@ public class Principal extends JFrame
 	public void limparBotoesTipo()
 	{
 		grupoBotoesTipo.clearSelection();
+		grupoBotoesTipoNoMenu.clearSelection();
 	}
 
 	// Setters
@@ -152,6 +170,10 @@ public class Principal extends JFrame
 		btnVisualizar.setEnabled(enable);
 		btnEditar.setEnabled(enable);
 		btnRemover.setEnabled(enable);
+
+		btnVisualizarMenu.setEnabled(enable);
+		btnEditarMenu.setEnabled(enable);
+		btnRemoverMenu.setEnabled(enable);
 	}
 
 	/*
@@ -162,14 +184,15 @@ public class Principal extends JFrame
 	{
 		abrirCatalogo = new AbrirCatalogo(this, true);
 		abrirCatalogo.setVisible(true);
+		
+		Catalogo catalogoAberto = abrirCatalogo.getCatalogo();
 
-		Catalogo catalogo = abrirCatalogo.getCatalogo();
-
-		if (catalogo == null)
+		if (catalogoAberto == null && catalogo == null)
 		{
 			System.exit(0);
 		}
-		return catalogo;
+		
+		return catalogoAberto != null ? catalogoAberto : catalogo;
 	}
 
 	/*
@@ -189,49 +212,131 @@ public class Principal extends JFrame
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
+		Component horizontalStrut_2 = Box.createHorizontalStrut(10);
+		menuBar.add(horizontalStrut_2);
+
 		JMenu mnArquivo = new JMenu("Arquivo");
 		menuBar.add(mnArquivo);
 
-		JMenuItem mntmNovo = new JMenuItem("Novo");
-		mnArquivo.add(mntmNovo);
+		JMenuItem btnNovoCatalogoMenu = new JMenuItem("Novo cat\u00E1logo...");
+		btnNovoCatalogoMenu.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				NovoCatalogo novoCatalogo = new NovoCatalogo(frame, true);
+				novoCatalogo.setVisible(true);
+				if (novoCatalogo.getCatalogo() != null)
+				{
+					catalogo = novoCatalogo.getCatalogo();
+				}
+				novoCatalogo.dispose();
+				recriaTabela((ArrayList<Midia>) catalogo.colecao());
+			}
+		});
+		btnNovoCatalogoMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
+		mnArquivo.add(btnNovoCatalogoMenu);
 
-		JMenuItem mntmAbrir = new JMenuItem("Abrir...");
-		mnArquivo.add(mntmAbrir);
+		JMenuItem btnAbrirCatalogoMenu = new JMenuItem("Abrir cat\u00E1logo...");
+		btnAbrirCatalogoMenu.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				catalogo = abrirCatalogo();
+				recriaTabela((ArrayList<Midia>) catalogo.colecao());
+			}
 
-		JMenuItem mntmSalvar = new JMenuItem("Salvar");
-		mnArquivo.add(mntmSalvar);
-
-		JMenuItem mntmSalvarComo = new JMenuItem("Salvar como...");
-		mnArquivo.add(mntmSalvarComo);
+		});
+		btnAbrirCatalogoMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		mnArquivo.add(btnAbrirCatalogoMenu);
 
 		JSeparator separator = new JSeparator();
 		mnArquivo.add(separator);
 
-		JMenuItem mntmSair = new JMenuItem("Sair");
-		mnArquivo.add(mntmSair);
+		JMenuItem btnSair = new JMenuItem("Sair");
+		btnSair.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				dispose();
+			}
+		});
+		btnSair.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
+		mnArquivo.add(btnSair);
 
-		JMenu mnEditar = new JMenu("Editar");
+		JMenu mnExibir = new JMenu("Exibir");
+		menuBar.add(mnExibir);
+
+		rdbtnTodosMenu = new JRadioButtonMenuItem("Todos tipos de m\u00EDdia");
+		rdbtnTodosMenu.setActionCommand("Todos");
+		grupoBotoesTipoNoMenu.add(rdbtnTodosMenu);
+		rdbtnTodosMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, InputEvent.CTRL_MASK));
+		mnExibir.add(rdbtnTodosMenu);
+
+		rdbtnCdsMenu = new JRadioButtonMenuItem("CDs");
+		rdbtnCdsMenu.setActionCommand("CDs");
+		grupoBotoesTipoNoMenu.add(rdbtnCdsMenu);
+		rdbtnCdsMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, InputEvent.CTRL_MASK));
+		mnExibir.add(rdbtnCdsMenu);
+
+		rdbtnDvdsMenu = new JRadioButtonMenuItem("DVDs");
+		rdbtnDvdsMenu.setActionCommand("DVDs");
+		grupoBotoesTipoNoMenu.add(rdbtnDvdsMenu);
+		rdbtnDvdsMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, InputEvent.CTRL_MASK));
+		mnExibir.add(rdbtnDvdsMenu);
+
+		rdbtnJogosMenu = new JRadioButtonMenuItem("Jogos");
+		rdbtnJogosMenu.setActionCommand("Jogos");
+		grupoBotoesTipoNoMenu.add(rdbtnJogosMenu);
+		rdbtnJogosMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, InputEvent.CTRL_MASK));
+		mnExibir.add(rdbtnJogosMenu);
+
+		JSeparator separator_2 = new JSeparator();
+		mnExibir.add(separator_2);
+
+		btnLocalizarMidiaMenu = new JMenuItem("Localizar m\u00EDdia...");
+		btnLocalizarMidiaMenu.setActionCommand("Localizar");
+		btnLocalizarMidiaMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK));
+		mnExibir.add(btnLocalizarMidiaMenu);
+
+		JMenu mnEditar = new JMenu("M\u00EDdia");
 		menuBar.add(mnEditar);
 
-		JMenuItem mntmInserirMidia = new JMenuItem("Inserir M\u00EDdia");
-		mnEditar.add(mntmInserirMidia);
+		btnVisualizarMenu = new JMenuItem("Visualizar...");
+		btnVisualizarMenu.setActionCommand("Visualizar");
+		btnVisualizarMenu.setEnabled(false);
+		btnVisualizarMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_MASK));
+		mnEditar.add(btnVisualizarMenu);
 
-		JMenuItem mntmRemoverMdia = new JMenuItem("Remover M\u00EDdia");
-		mnEditar.add(mntmRemoverMdia);
+		btnEditarMenu = new JMenuItem("Editar...");
+		btnEditarMenu.setActionCommand("Editar");
+		btnEditarMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_MASK));
+		btnEditarMenu.setEnabled(false);
+		mnEditar.add(btnEditarMenu);
 
-		JMenuItem mntmAlterarMdia = new JMenuItem("Alterar M\u00EDdia");
-		mnEditar.add(mntmAlterarMdia);
+		btnRemoverMenu = new JMenuItem("Remover");
+		btnRemoverMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK));
+		btnRemoverMenu.setEnabled(false);
+		mnEditar.add(btnRemoverMenu);
+
+		JSeparator separator_3 = new JSeparator();
+		mnEditar.add(separator_3);
+
+		btnInserirNovaMidiaMenu = new JMenuItem("Inserir Nova...");
+		btnInserirNovaMidiaMenu.setActionCommand("Inserir");
+		btnInserirNovaMidiaMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_MASK));
+		mnEditar.add(btnInserirNovaMidiaMenu);
 
 		JMenu mnAjuda = new JMenu("Ajuda");
 		menuBar.add(mnAjuda);
 
-		JMenuItem mntmTpicosDaAjuda = new JMenuItem("T\u00F3picos da Ajuda");
-		mnAjuda.add(mntmTpicosDaAjuda);
-
-		JSeparator separator_1 = new JSeparator();
-		mnAjuda.add(separator_1);
-
 		JMenuItem mntmSobre = new JMenuItem("Sobre");
+		mntmSobre.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				new Sobre();
+			}
+		});
 		mnAjuda.add(mntmSobre);
 
 		// Definições do ContentPane
@@ -298,38 +403,31 @@ public class Principal extends JFrame
 		grupoBotoesTipo.add(rdbtnJogos);
 
 		// Botão para busca personalizada de mídia
-		btnLocalizarMdia = new JButton("Localizar m\u00EDdia");
-		btnLocalizarMdia.setActionCommand("Localizar");
-		btnLocalizarMdia.setPreferredSize(new Dimension(0, 35));
+		btnLocalizarMidia = new JButton("Localizar m\u00EDdia");
+		btnLocalizarMidia.setActionCommand("Localizar");
+		btnLocalizarMidia.setPreferredSize(new Dimension(0, 35));
 
-		// Layout dos botões de seleção de mídia
+		// Layout dos botões 'Tipos de mídia' e de busca
 		GroupLayout gl_pnTipo = new GroupLayout(pnTipo);
-		gl_pnTipo.setHorizontalGroup(gl_pnTipo.createParallelGroup(Alignment.LEADING).addGroup(gl_pnTipo
-				.createSequentialGroup().addContainerGap()
-				.addComponent(rdbtnTodos, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
-				.addPreferredGap(ComponentPlacement.UNRELATED)
-				.addComponent(rdbtnCds, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
-				.addPreferredGap(ComponentPlacement.UNRELATED)
-				.addComponent(rdbtnDvds, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
-				.addPreferredGap(ComponentPlacement.UNRELATED)
-				.addComponent(rdbtnJogos, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
-				.addPreferredGap(ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
-				.addComponent(btnLocalizarMdia, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE)
-				.addContainerGap()));
-		gl_pnTipo
-				.setVerticalGroup(gl_pnTipo
-						.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_pnTipo
-								.createSequentialGroup()
-								.addGap(0)
-								.addGroup(gl_pnTipo
-										.createParallelGroup(Alignment.BASELINE, false)
-										.addComponent(rdbtnTodos, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-										.addComponent(rdbtnCds, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-										.addComponent(rdbtnDvds, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-										.addComponent(rdbtnJogos, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-										.addComponent(btnLocalizarMdia, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-								.addGap(25)));
+		gl_pnTipo.setHorizontalGroup(gl_pnTipo.createParallelGroup(Alignment.LEADING).addGroup(
+				gl_pnTipo.createSequentialGroup().addContainerGap().addComponent(rdbtnTodos,
+						GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE).addPreferredGap(
+						ComponentPlacement.UNRELATED).addComponent(rdbtnCds, GroupLayout.PREFERRED_SIZE, 80,
+						GroupLayout.PREFERRED_SIZE).addPreferredGap(ComponentPlacement.UNRELATED).addComponent(
+						rdbtnDvds, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE).addPreferredGap(
+						ComponentPlacement.UNRELATED).addComponent(rdbtnJogos, GroupLayout.PREFERRED_SIZE, 80,
+						GroupLayout.PREFERRED_SIZE).addPreferredGap(ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
+						.addComponent(btnLocalizarMidia, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE)
+						.addContainerGap()));
+		gl_pnTipo.setVerticalGroup(gl_pnTipo.createParallelGroup(Alignment.LEADING).addGroup(
+				gl_pnTipo.createSequentialGroup().addGap(0).addGroup(
+						gl_pnTipo.createParallelGroup(Alignment.BASELINE, false).addComponent(rdbtnTodos,
+								GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE).addComponent(rdbtnCds,
+								GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE).addComponent(rdbtnDvds,
+								GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE).addComponent(rdbtnJogos,
+								GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE).addComponent(
+								btnLocalizarMidia, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE)).addGap(25)));
 		pnTipo.setLayout(gl_pnTipo);
 
 		// JPanel para exibir as mídias do catálogo
@@ -411,31 +509,27 @@ public class Principal extends JFrame
 
 		// Layout dos botões CRUD
 		GroupLayout gl_panel = new GroupLayout(panel);
-		gl_panel.setHorizontalGroup(gl_panel
-				.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_panel
-						.createSequentialGroup()
-						.addContainerGap()
-						.addComponent(btnVisualizar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addComponent(btnEditar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addComponent(btnRemover, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED, 150, Short.MAX_VALUE)
-						.addComponent(btnInserirNovaMidia, GroupLayout.PREFERRED_SIZE, 188, GroupLayout.PREFERRED_SIZE)
+		gl_panel.setHorizontalGroup(gl_panel.createParallelGroup(Alignment.LEADING).addGroup(
+				gl_panel.createSequentialGroup().addContainerGap().addComponent(btnVisualizar,
+						GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED).addComponent(btnEditar,
+								GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED).addComponent(btnRemover,
+								GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED, 150, Short.MAX_VALUE).addComponent(
+								btnInserirNovaMidia, GroupLayout.PREFERRED_SIZE, 188, GroupLayout.PREFERRED_SIZE)
 						.addContainerGap()));
-		gl_panel.setVerticalGroup(gl_panel
-				.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_panel
-						.createSequentialGroup()
-						.addContainerGap(25, Short.MAX_VALUE)
-						.addGroup(gl_panel
-								.createParallelGroup(Alignment.BASELINE)
-								.addComponent(btnVisualizar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addComponent(btnEditar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addComponent(btnRemover, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addComponent(btnInserirNovaMidia, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addContainerGap()));
+		gl_panel.setVerticalGroup(gl_panel.createParallelGroup(Alignment.LEADING).addGroup(
+				Alignment.TRAILING,
+				gl_panel.createSequentialGroup().addContainerGap(25, Short.MAX_VALUE).addGroup(
+						gl_panel.createParallelGroup(Alignment.BASELINE).addComponent(btnVisualizar,
+								GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnEditar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE).addComponent(btnRemover,
+										GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE).addComponent(btnInserirNovaMidia,
+										GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE)).addContainerGap()));
 		panel.setLayout(gl_panel);
 
 		// Ajustes finais de layout do contentPane
@@ -446,12 +540,12 @@ public class Principal extends JFrame
 		pnMidias.add(horizontalStrut_1, BorderLayout.WEST);
 
 		// Clica o radioButton 'Todos' para exibir inicialmente todas as mídias
-		clicaBotaoTodos();
+		clicaBotaoTodosMenu();
 	}
 
-	public void clicaBotaoTodos()
+	public void clicaBotaoTodosMenu()
 	{
-		rdbtnTodos.doClick();
+		rdbtnTodosMenu.doClick();
 	}
 
 	public void recriaTabela(ArrayList<Midia> midias)
@@ -459,7 +553,7 @@ public class Principal extends JFrame
 		table.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Tipo", "T\u00EDtulo", "Ano", "Midia" })
 		{
 			Class[] columnTypes = new Class[] { String.class, String.class, Integer.class, Midia.class };
-			
+
 			boolean[] columnEditables = new boolean[] { false, false, false, false };
 
 			public Class getColumnClass(int columnIndex)
@@ -497,24 +591,59 @@ public class Principal extends JFrame
 			((DefaultTableModel) table.getModel()).addRow(valores);
 		}
 	}
-	
+
 	private void atribuiListeners()
 	{
+		// Listener dos botões 'Tipo' da tela Principal
 		rdbtnTodos.addActionListener(new TipoMidiaListener());
 		rdbtnCds.addActionListener(new TipoMidiaListener());
 		rdbtnDvds.addActionListener(new TipoMidiaListener());
 		rdbtnJogos.addActionListener(new TipoMidiaListener());
-		btnLocalizarMdia.addActionListener(new BotoesListener());
+
+		// Listener dos botões 'Tipo' do Menu
+		rdbtnTodosMenu.addActionListener(new TipoMidiaListener());
+		rdbtnCdsMenu.addActionListener(new TipoMidiaListener());
+		rdbtnDvdsMenu.addActionListener(new TipoMidiaListener());
+		rdbtnJogosMenu.addActionListener(new TipoMidiaListener());
+
+		// Listener dos botões 'Localizar Mídia' da tela Principal e do Menu
+		btnLocalizarMidia.addActionListener(new BotoesListener());
+		btnLocalizarMidiaMenu.addActionListener(new BotoesListener());
+
+		// Listener da tabela de mídias
 		table.getSelectionModel().addListSelectionListener(new TabelaListener(this));
+
+		// Listener dos botões CRUD da tela Principal
 		btnVisualizar.addActionListener(new BotoesListener());
 		btnEditar.addActionListener(new BotoesListener());
 		btnRemover.addActionListener(new BotoesListener());
 		btnInserirNovaMidia.addActionListener(new BotoesListener());
+
+		// Listener dos botões CRUD do Menu
+		btnVisualizarMenu.addActionListener(new BotoesListener());
+		btnEditarMenu.addActionListener(new BotoesListener());
+		btnRemoverMenu.addActionListener(new BotoesListener());
+		btnInserirNovaMidiaMenu.addActionListener(new BotoesListener());
 	}
-	
+
 	public static int getCatalogoID()
 	{
 		return catalogo.getId();
 	}
 
+	public void clicaBotaoTipo(String tipo)
+	{
+		if (tipo.equals("Todos")) rdbtnTodos.doClick();
+		else if (tipo.equals("CDs")) rdbtnCds.doClick();
+		else if (tipo.equals("DVDs")) rdbtnDvds.doClick();
+		else if (tipo.equals("Jogos")) rdbtnJogos.doClick();
+	}
+
+	public void selecionaBotaoTipoMenu(String tipo)
+	{
+		if (tipo.equals("Todos")) rdbtnTodosMenu.setSelected(true);
+		else if (tipo.equals("CDs")) rdbtnCdsMenu.setSelected(true);
+		else if (tipo.equals("DVDs")) rdbtnDvdsMenu.setSelected(true);
+		else if (tipo.equals("Jogos")) rdbtnJogosMenu.setSelected(true);
+	}
 }

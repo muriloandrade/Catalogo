@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
@@ -18,12 +19,21 @@ import br.ufscar.si.catalogo.modelo.Midia;
 
 public class BotoesListener implements ActionListener
 {
-	public void actionPerformed(ActionEvent e)
+	public void actionPerformed(ActionEvent event)
 	{
 		Principal frame = Principal.getFrame();
-		String actionCommand = ((JButton) e.getSource()).getActionCommand();
+		String actionCommand;
 		JTable tabela = frame.getTabela();
 		Catalogo catalogo = frame.getCatalogo();
+		
+		if (event.getSource() instanceof JMenuItem)
+		{
+			 actionCommand = ((JMenuItem) event.getSource()).getActionCommand();
+		}
+		else
+		{
+			actionCommand = ((JButton) event.getSource()).getActionCommand();
+		}
 
 		// VISUALIZAR
 		if (actionCommand.equals("Visualizar"))
@@ -39,7 +49,7 @@ public class BotoesListener implements ActionListener
 			EditarMidia editarMidia = new EditarMidia(frame, true, catalogo, (Midia) tabela.getValueAt(tabela
 					.getSelectedRow(), 3));
 			editarMidia.setVisible(true);
-			frame.clicaBotaoTodos();
+			frame.clicaBotaoTodosMenu();
 		}
 
 		// REMOVER
@@ -75,7 +85,7 @@ public class BotoesListener implements ActionListener
 				{
 					genericDAO.delete(midia.getId());
 				}
-				catch (DAOException e1)
+				catch (DAOException e)
 				{
 					JOptionPane.showMessageDialog(frame, "Erro de operação ao acessar banco de dados.",
 							"Excluir catálogo", JOptionPane.ERROR_MESSAGE);
@@ -83,7 +93,7 @@ public class BotoesListener implements ActionListener
 
 				JOptionPane.showMessageDialog(frame, "Exclusão realizada com sucesso.", "Excluir mídia",
 						JOptionPane.INFORMATION_MESSAGE);
-				frame.clicaBotaoTodos();
+				frame.clicaBotaoTodosMenu();
 			}
 		}
 
@@ -96,7 +106,7 @@ public class BotoesListener implements ActionListener
 			{
 				InserirMidia d_inserir = new InserirMidia(Principal.getFrame(), true, catalogo);
 				d_inserir.setVisible(true);
-				frame.clicaBotaoTodos();
+				frame.clicaBotaoTodosMenu();
 			}
 			else
 			{

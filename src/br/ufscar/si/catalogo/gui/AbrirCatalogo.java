@@ -43,10 +43,10 @@ public class AbrirCatalogo extends JDialog
 
 	public AbrirCatalogo(final JFrame owner, boolean modal)
 	{
+		// Configurações iniciais do layout
 		super(owner, modal);
 		setResizable(false);
 		dialogAbrirCatalogo = this;
-
 		setTitle("Abrir Cat\u00E1logo");
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 230);
@@ -58,6 +58,7 @@ public class AbrirCatalogo extends JDialog
 		gridBagLayout.rowWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		getContentPane().setLayout(gridBagLayout);
 
+		// Painel para exibir os catálogos disponíveis
 		JScrollPane scrollPane = new JScrollPane();
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
@@ -72,6 +73,7 @@ public class AbrirCatalogo extends JDialog
 		scrollPane.setViewportView(tableCatalogos);
 		recriarTabela();
 
+		// Painel dos botões
 		JPanel panel = new JPanel();
 		GridBagConstraints gbc_panel = new GridBagConstraints();
 		gbc_panel.insets = new Insets(5, 5, 5, 5);
@@ -80,24 +82,15 @@ public class AbrirCatalogo extends JDialog
 		gbc_panel.gridy = 1;
 		getContentPane().add(panel, gbc_panel);
 
+		// Botão Novo
 		btnNovo = new JButton("Novo...");
 
-		btnAbrir = new JButton("Abrir");
-		btnAbrir.setEnabled(false);
-		btnAbrir.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				catalogo = (Catalogo) tableCatalogos.getValueAt(tableCatalogos.getSelectedRow(), 2);
-				dispose();
-			}
-		});
-
+		// Botão Excluir (habilitado após seleção de um catálogo na tabela)
 		btnExcluir = new JButton("Excluir");
 		btnExcluir.setEnabled(false);
 		btnExcluir.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
+			public void actionPerformed(ActionEvent event)
 			{
 				CatalogoJDBCDAO catalogoDAO = new CatalogoJDBCDAO();
 				catalogo = (Catalogo) tableCatalogos.getValueAt(tableCatalogos.getSelectedRow(), 2);
@@ -111,7 +104,7 @@ public class AbrirCatalogo extends JDialog
 					{
 						catalogoDAO.delete(catalogo.getId());
 					}
-					catch (DAOException e1)
+					catch (DAOException e)
 					{
 						JOptionPane.showMessageDialog(dialogAbrirCatalogo,
 								"Erro de operação ao acessar banco de dados.", "Excluir catálogo",
@@ -121,6 +114,20 @@ public class AbrirCatalogo extends JDialog
 				}
 			}
 		});
+
+		// Botão Abrir (habilitado após seleção de um catálogo na tabela)
+		btnAbrir = new JButton("Abrir");
+		btnAbrir.setEnabled(false);
+		btnAbrir.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				catalogo = (Catalogo) tableCatalogos.getValueAt(tableCatalogos.getSelectedRow(), 2);
+				dispose();
+			}
+		});
+
+		// Layout dos botões
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(gl_panel.createParallelGroup(Alignment.LEADING).addGroup(
 				gl_panel.createSequentialGroup().addComponent(btnNovo).addGap(8).addComponent(btnExcluir)
@@ -132,7 +139,7 @@ public class AbrirCatalogo extends JDialog
 		panel.setLayout(gl_panel);
 		btnNovo.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
+			public void actionPerformed(ActionEvent event)
 			{
 				NovoCatalogo novoCatalogo = new NovoCatalogo(owner, true);
 				novoCatalogo.setVisible(true);
@@ -144,12 +151,6 @@ public class AbrirCatalogo extends JDialog
 	public Catalogo getCatalogo()
 	{
 		return catalogo;
-	}
-
-	public static String converteParaDAT(String nomeArquivo)
-	{
-		if (!nomeArquivo.substring(nomeArquivo.length() - 3).equals("dat")) nomeArquivo += ".dat";
-		return nomeArquivo;
 	}
 
 	private void recriarTabela()
@@ -179,7 +180,7 @@ public class AbrirCatalogo extends JDialog
 		tableCatalogos.getColumnModel().getColumn(2).setMaxWidth(0);
 		tableCatalogos.getSelectionModel().addListSelectionListener(new ListSelectionListener()
 		{
-			public void valueChanged(ListSelectionEvent e)
+			public void valueChanged(ListSelectionEvent event)
 			{
 				if (tableCatalogos.getSelectedRow() != -1)
 				{
@@ -189,8 +190,8 @@ public class AbrirCatalogo extends JDialog
 			}
 		});
 
+		// Busca catálogos no banco de dados e insere na tabela
 		CatalogoJDBCDAO catalogoDAO = new CatalogoJDBCDAO();
-
 		try
 		{
 			ArrayList<ObjectDTO> catalogos = (ArrayList<ObjectDTO>) catalogoDAO.selectAll();
@@ -204,7 +205,7 @@ public class AbrirCatalogo extends JDialog
 		catch (DAOException e)
 		{
 			JOptionPane.showMessageDialog(dialogAbrirCatalogo, "Erro de operação ao acessar banco de dados.",
-					"Excluir catálogo", JOptionPane.ERROR_MESSAGE);
+					"Abrir catálogo", JOptionPane.ERROR_MESSAGE);
 			dispose();
 		}
 	}

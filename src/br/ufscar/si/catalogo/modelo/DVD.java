@@ -1,7 +1,5 @@
 package br.ufscar.si.catalogo.modelo;
 
-import java.text.ParseException;
-
 public class DVD extends Midia
 {
 	public static int MAX_ARTISTAS = 5;
